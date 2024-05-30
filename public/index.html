@@ -1,12 +1,97 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Connect MetaMask</title>
+    <title>Domin Network Explorer - Dominscan</title>
     <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
   </head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+    .header {
+      background-color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e7e7e7;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .header button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .header button:hover {
+      background-color: #0056b3;
+    }
+    .content {
+      padding: 20px;
+    }
+    .object-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .object-card {
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      width: calc(33.333% - 20px);
+      box-sizing: border-box;
+    }
+    .object-card h3d {
+      margin-top: 0;
+      font-size: 18px;
+      text-decoration: line-through;
+    }
+    .object-card h3 {
+      margin-top: 0;
+      font-size: 18px;
+    }
+    .object-card p {
+      margin: 5px 0;
+    }
+    .qr-code {
+      display: none;
+      margin-top: 10px;
+      width: 300px;
+    }
+    .section-title {
+      font-size: 20px;
+      margin-top: 20px;
+    }
+    .section {
+      margin-top: 30px;
+    }
+  </style>
   <body>
-    <button id="connect-wallet">Connect Wallet</button>
-    <div id="object-list"></div>
+    <div class="header">
+      <h1>dominscan</h1>
+      <button id="connect-wallet">Connect Wallet</button>
+    </div>
+    <div class="content">
+      <div class="section">
+        <div class="section-title">Private Records</div>
+        <div id="private-list" class="object-list"></div>
+      </div>
+      <div class="section">
+        <div class="section-title">Public Records</div>
+        <div id="public-list" class="object-list"></div>
+      </div>
+    </div>
 
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -28,10 +113,12 @@
       // Initialize Firebase
       const app = initializeApp(firebaseConfig);
       const functions = getFunctions(app);
-      connectFunctionsEmulator(functions, "127.0.0.1", 5001);
+      // connectFunctionsEmulator(functions, "127.0.0.1", 5001);
 
       const connectWalletButton = document.getElementById("connect-wallet");
-      const objectListDiv = document.getElementById("object-list");
+      const publicListDiv = document.getElementById("public-list");
+      const privateListDiv = document.getElementById("private-list");
+      let account = null;
 
       connectWalletButton.addEventListener("click", async () => {
         if (window.ethereum) {
@@ -40,9 +127,8 @@
             await window.ethereum.enable();
             const accounts = await web3.eth.getAccounts();
             console.log("Connected account:", accounts[0]);
-
-            // Fetch Sui objects
-            fetchSuiObjects();
+            account = accounts[0];
+            await fetchConsumerRecords();
           } catch (error) {
             console.error("User denied account access");
           }
@@ -51,26 +137,129 @@
         }
       });
 
-      async function fetchSuiObjects() {
+      async function fetchConsumerRecords() {
         try {
-          const getSuiObjects = httpsCallable(functions, "getSuiObjects");
-          const result = await getSuiObjects();
-          displayObjects(result.data.data);
+          const getConsumerRecords = httpsCallable(
+            functions,
+            "getConsumerRecords"
+          );
+          console.log(`Fetching consumer records for account: ${account}`);
+          const responseData = await getConsumerRecords({ consumer: account });
+          await displayObjects(responseData.data.data);
         } catch (error) {
           console.error("Error fetching objects:", error);
         }
       }
 
-      function displayObjects(objects) {
-        objectListDiv.innerHTML = "";
-        console.log(`Objects: ${JSON.stringify(objects)}`);
-        objects.forEach((object) => {
-          console.log(`Object: ${JSON.stringify(object)}`);
+      async function getAssetDetail(contractAddress, tokenId) {
+        try {
+          const getAssetDetail = httpsCallable(functions, "getAssetDetail");
+          const responseData = await getAssetDetail({
+            contractAddress,
+            tokenId,
+          });
+          return responseData.data.data;
+        } catch (error) {
+          console.error("Error fetching asset detail:", error);
+        }
+      }
+
+      async function displayObjects(objects) {
+        publicListDiv.innerHTML = "";
+        if (!account) {
+          privateListDiv.innerHTML = `<p>Please connect your wallet to view private records</p>`;
+        } else {
+          privateListDiv.innerHTML = "";
+        }
+        objects.forEach(async (object, index) => {
           const div = document.createElement("div");
-          div.textContent = JSON.stringify(object);
-          objectListDiv.appendChild(div);
+          div.className = "object-card";
+          if (object.status === 0) {
+            div.style.backgroundColor = "#f8d7da";
+            div.innerHTML = `<h3d>Consumer Record</h3d<p></p><h3d>${object.id}</h3d>
+            `;
+          } else {
+            div.innerHTML = `<h3>Consumer Record</h3><h3>${object.id}</h3>
+            `;
+          }
+          div.innerHTML += `
+                    <p>${object.createdAt}</p>
+                    <p>Platform: <img src=${object.platform.image} alt="${object.platform.name}" width="30"; height="30"; veritical-align="middle";> ${object.platform.name}</p>
+                    <p>Operator: ${object.operator}</p>
+                    <p>Consumer: ${object.consumer}</p>
+                `;
+          if (object.status === 1) {
+            div.style.backgroundColor = "#d4edda";
+          }
+          if (
+            account &&
+            object.consumer.toLowerCase() === account.toLowerCase()
+          ) {
+            div.innerHTML += `
+            <button onclick="toggleQRCode(${index})">Show/Hide Details</button>
+                    `;
+            privateListDiv.appendChild(div);
+          } else {
+            publicListDiv.appendChild(div);
+          }
+          if (object.assetData && Object.keys(object.assetData).length > 0) {
+            const data = JSON.stringify(object.assetData);
+            const url = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
+              data
+            )}&size=50x50`;
+            console.log(`QR Code URL: ${url}`);
+            const assetDetail = await getAssetDetail(
+              object.assetData.contractAddress,
+              object.assetData.tokenId
+            );
+            div.innerHTML += `<div class="qr-code" id="qr-code-${index}-asset">
+              <p>Asset Data:</p>
+              <img src=${url}" alt="QR Code" width="100">
+              <pre>${JSON.stringify(object.assetData, null, 2)}</pre>
+              <h4>Asset Name:</h4>
+              <p>${assetDetail.name}</p>
+              <h4>Asset Description:</h4>
+              <p>${assetDetail.description}</p>
+              <h4>Asset Image:</h4>
+              <img src=${assetDetail.image} alt="Asset Image" width="100">
+              </div>`;
+          }
+          if (object.detail && Object.keys(object.detail).length > 0) {
+            const data = JSON.stringify(object.detail);
+            const url = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
+              data
+            )}&size=50x50`;
+            div.innerHTML += `<div class="qr-code" id="qr-code-${index}-detail">
+              <h4>Detail Data:</h4>
+              <img src=${url}" alt="QR Code" width="100">
+              <h4>Detail:</h4>
+              <pre>${JSON.stringify(object.detail, null, 2)}</pre>
+              </div>`;
+          }
         });
       }
+
+      window.toggleQRCode = function (index) {
+        const ids = [`qr-code-${index}-asset`, `qr-code-${index}-detail`];
+        ids.forEach((id) => {
+          const qrCodeDiv = document.getElementById(id);
+          if (!qrCodeDiv) {
+            return;
+          }
+          if (
+            qrCodeDiv.style.display === "none" ||
+            qrCodeDiv.style.display === ""
+          ) {
+            qrCodeDiv.style.display = "block";
+          } else {
+            qrCodeDiv.style.display = "none";
+          }
+        });
+      };
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        await fetchConsumerRecords();
+      });
     </script>
   </body>
 </html>
