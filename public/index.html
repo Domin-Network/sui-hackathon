@@ -184,9 +184,9 @@
           }
           div.innerHTML += `
                     <p>${object.createdAt}</p>
-                    <p>Platform: <img src=${object.platform.image} alt="${object.platform.name}" width="30"; height="30"; veritical-align="middle";> ${object.platform.name}</p>
-                    <p>Operator: ${object.operator}</p>
-                    <p>Consumer: ${object.consumer}</p>
+                    <h4>Source:<img src=${object.source.image} alt="${object.source.name}" width="30"; height="30"; veritical-align="middle";> ${object.source.name}</h4>
+                    <h4>Operator: ${object.operator}</h4>
+                    <h4>Consumer id: ${object.consumer}</h4>
                 `;
           if (object.status === 1) {
             div.style.backgroundColor = "#d4edda";
@@ -195,46 +195,52 @@
             account &&
             object.consumer.toLowerCase() === account.toLowerCase()
           ) {
-            div.innerHTML += `
-            <button onclick="toggleQRCode(${index})">Show/Hide Details</button>
-                    `;
-            privateListDiv.appendChild(div);
-          } else {
-            publicListDiv.appendChild(div);
-          }
-          if (object.assetData && Object.keys(object.assetData).length > 0) {
-            const data = JSON.stringify(object.assetData);
-            const url = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
-              data
-            )}&size=50x50`;
-            console.log(`QR Code URL: ${url}`);
-            const assetDetail = await getAssetDetail(
-              object.assetData.contractAddress,
-              object.assetData.tokenId
-            );
-            div.innerHTML += `<div class="qr-code" id="qr-code-${index}-asset">
-              <p>Asset Data:</p>
-              <img src=${url}" alt="QR Code" width="100">
-              <pre>${JSON.stringify(object.assetData, null, 2)}</pre>
+            if (object.assetData && Object.keys(object.assetData).length > 0) {
+              const data = JSON.stringify(object.assetData);
+              const url = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
+                data
+              )}&size=50x50`;
+              const assetDetail = await getAssetDetail(
+                object.assetData.contractAddress,
+                object.assetData.tokenId
+              );
+              div.innerHTML += `
+            <pre>${JSON.stringify(object.assetData, null, 2)}</pre>
               <h4>Asset Name:</h4>
               <p>${assetDetail.name}</p>
               <h4>Asset Description:</h4>
               <p>${assetDetail.description}</p>
               <h4>Asset Image:</h4>
               <img src=${assetDetail.image} alt="Asset Image" width="100">
+              <p></p>
+              `;
+              div.innerHTML += `<div class="qr-code" id="qr-code-${index}-asset">
+              <h4>Asset Data:</h4>
+              <img src=${url}" alt="QR Code" width="100">
               </div>`;
-          }
-          if (object.detail && Object.keys(object.detail).length > 0) {
-            const data = JSON.stringify(object.detail);
-            const url = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
-              data
-            )}&size=50x50`;
-            div.innerHTML += `<div class="qr-code" id="qr-code-${index}-detail">
+            }
+            if (object.detail && Object.keys(object.detail).length > 0) {
+              const data = JSON.stringify(object.detail);
+              const url = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
+                data
+              )}&size=50x50`;
+              div.innerHTML += `
+            <h4>Detail name:</h4>
+            <p>${object.detail.name}</p>
+            `;
+              div.innerHTML += `<div class="qr-code" id="qr-code-${index}-detail">
               <h4>Detail Data:</h4>
               <img src=${url}" alt="QR Code" width="100">
               <h4>Detail:</h4>
               <pre>${JSON.stringify(object.detail, null, 2)}</pre>
               </div>`;
+            }
+            div.innerHTML += `
+            <button onclick="toggleQRCode(${index})">Show/Hide Details</button>
+                    `;
+            privateListDiv.appendChild(div);
+          } else {
+            publicListDiv.appendChild(div);
           }
         });
       }

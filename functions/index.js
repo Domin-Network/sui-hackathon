@@ -21,13 +21,15 @@ exports.getConsumerRecords = onCall(async (data, context) => {
   const testData = [
     {
       id: 1,
-      platform: {
+      source: {
         name: "Polygon",
         image: "https://icons.llamao.fi/icons/chains/rsz_polygon.jpg",
       },
       operator: "Operator #1",
       authorizer: "Authorizer #1",
-      consumer,
+      consumer: consumer
+        ? consumer
+        : "0x85b7ca161C311d9A5f0077d5048CAdFace89a267",
       assetData: {
         contractAddress: "0x85b7ca161C311d9A5f0077d5048CAdFace89a267",
         tokenId: 3,
@@ -38,13 +40,15 @@ exports.getConsumerRecords = onCall(async (data, context) => {
     },
     {
       id: 2,
-      platform: {
+      source: {
         name: "Conflux",
         image: "https://icons.llamao.fi/icons/chains/rsz_conflux.jpg",
       },
       operator: "Operator #2",
       authorizer: "Authorizer #1",
-      consumer,
+      consumer: consumer
+        ? consumer
+        : "0x85b7ca161C311d9A5f0077d5048CAdFace89a267",
       assetData: {
         contractAddress: "0xb91b28d1ce16f1792cede7fed34dfb15678e0d88",
         tokenId: 1,
@@ -69,7 +73,7 @@ exports.getConsumerRecords = onCall(async (data, context) => {
     },
     {
       id: 3,
-      platform: {
+      source: {
         name: "BNB Smart Chain",
         image: "https://icons.llamao.fi/icons/chains/rsz_binance.jpg",
       },
@@ -86,7 +90,7 @@ exports.getConsumerRecords = onCall(async (data, context) => {
     },
     {
       id: 4,
-      platform: {
+      source: {
         name: "Ethereum",
         image: "https://icons.llamao.fi/icons/chains/rsz_ethereum.jpg",
       },
@@ -103,7 +107,7 @@ exports.getConsumerRecords = onCall(async (data, context) => {
     },
     {
       id: 5,
-      platform: {
+      source: {
         name: "Polygon",
         image: "https://icons.llamao.fi/icons/chains/rsz_polygon.jpg",
       },
@@ -120,7 +124,7 @@ exports.getConsumerRecords = onCall(async (data, context) => {
     },
     {
       id: 6,
-      platform: {
+      source: {
         name: "Ethereum",
         image: "https://icons.llamao.fi/icons/chains/rsz_ethereum.jpg",
       },
@@ -150,7 +154,7 @@ exports.getConsumerRecords = onCall(async (data, context) => {
     },
     {
       id: 7,
-      platform: {
+      source: {
         name: "Polygon",
         image: "https://icons.llamao.fi/icons/chains/rsz_polygon.jpg",
       },
@@ -167,7 +171,7 @@ exports.getConsumerRecords = onCall(async (data, context) => {
     },
     {
       id: 8,
-      platform: {
+      source: {
         name: "Polygon",
         image: "https://icons.llamao.fi/icons/chains/rsz_polygon.jpg",
       },
@@ -197,7 +201,7 @@ exports.getConsumerRecords = onCall(async (data, context) => {
     },
     {
       id: 9,
-      platform: {
+      source: {
         name: "Conflux",
         image: "https://icons.llamao.fi/icons/chains/rsz_conflux.jpg",
       },
@@ -214,7 +218,7 @@ exports.getConsumerRecords = onCall(async (data, context) => {
     },
     {
       id: 10,
-      platform: {
+      source: {
         name: "Ethereum",
         image: "https://icons.llamao.fi/icons/chains/rsz_ethereum.jpg",
       },
@@ -244,7 +248,7 @@ exports.getConsumerRecords = onCall(async (data, context) => {
     },
     {
       id: 11,
-      platform: {
+      source: {
         name: "Polygon",
         image: "https://icons.llamao.fi/icons/chains/rsz_polygon.jpg",
       },
@@ -261,7 +265,7 @@ exports.getConsumerRecords = onCall(async (data, context) => {
     },
     {
       id: 12,
-      platform: {
+      source: {
         name: "Ethereum",
         image: "https://icons.llamao.fi/icons/chains/rsz_ethereum.jpg",
       },
@@ -278,7 +282,7 @@ exports.getConsumerRecords = onCall(async (data, context) => {
     },
     {
       id: 13,
-      platform: {
+      source: {
         name: "Polygon",
         image: "https://icons.llamao.fi/icons/chains/rsz_polygon.jpg",
       },
@@ -295,7 +299,7 @@ exports.getConsumerRecords = onCall(async (data, context) => {
     },
     {
       id: 14,
-      platform: {
+      source: {
         name: "Polygon",
         image: "https://icons.llamao.fi/icons/chains/rsz_polygon.jpg",
       },
@@ -312,7 +316,7 @@ exports.getConsumerRecords = onCall(async (data, context) => {
     },
     {
       id: 15,
-      platform: {
+      source: {
         name: "Conflux",
         image: "https://icons.llamao.fi/icons/chains/rsz_conflux.jpg",
       },
@@ -342,7 +346,7 @@ exports.getConsumerRecords = onCall(async (data, context) => {
     },
     {
       id: 16,
-      platform: {
+      source: {
         name: "Ethereum",
         image: "https://icons.llamao.fi/icons/chains/rsz_ethereum.jpg",
       },
@@ -359,7 +363,7 @@ exports.getConsumerRecords = onCall(async (data, context) => {
     },
     {
       id: 17,
-      platform: {
+      source: {
         name: "Polygon",
         image: "https://icons.llamao.fi/icons/chains/rsz_polygon.jpg",
       },
@@ -376,7 +380,7 @@ exports.getConsumerRecords = onCall(async (data, context) => {
     },
     {
       id: 18,
-      platform: {
+      source: {
         name: "Ethereum",
         image: "https://icons.llamao.fi/icons/chains/rsz_ethereum.jpg",
       },
@@ -406,7 +410,7 @@ exports.getConsumerRecords = onCall(async (data, context) => {
     },
     {
       id: 19,
-      platform: {
+      source: {
         name: "Polygon",
         image: "https://icons.llamao.fi/icons/chains/rsz_polygon.jpg",
       },
@@ -423,7 +427,7 @@ exports.getConsumerRecords = onCall(async (data, context) => {
     },
     {
       id: 20,
-      platform: {
+      source: {
         name: "Polygon",
         image: "https://icons.llamao.fi/icons/chains/rsz_polygon.jpg",
       },
